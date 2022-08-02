@@ -7,7 +7,7 @@ extern crate paho_mqtt as mqtt;
 
 
 pub struct Connection {
-    pub cli: mqtt::AsyncClient,
+    cli: mqtt::AsyncClient,
     pub rx: mqtt::AsyncReceiver<Option<mqtt::Message>>,
 }
 
