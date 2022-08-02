@@ -5,22 +5,21 @@ use std::thread;
 
 extern crate paho_mqtt as mqtt;
 
-struct Subscription {
-    topic: String
-}
 
 pub struct Connection {
     pub cli: mqtt::AsyncClient,
-    //msg_cb: dyn FnMut(&mqtt::AsyncClient, Option<mqtt::Message>),
+    pub rx: mqtt::AsyncReceiver<Option<mqtt::Message>>,
 }
 
 impl Connection {
 
     pub fn new(url: String) -> Connection {
-        let cli = mqtt::AsyncClient::new(url).unwrap_or_else(|err| {
+        let mut cli = mqtt::AsyncClient::new(url).unwrap_or_else(|err| {
             println!("Error creating the client: {:?}", err);
             process::exit(1);
         });
+
+        let rx = cli.get_stream(1024);
 
         let conn_opts = mqtt::ConnectOptionsBuilder::new()
         .keep_alive_interval(Duration::from_secs(20))
@@ -42,19 +41,10 @@ impl Connection {
             cli.reconnect();
         });
 
-        let cb = |_cli, msg: Option<mqtt::Message>| {
-            if let Some(msg) = msg {
-                let topic = msg.topic();
-                let payload_str = msg.payload_str();
-                println!("{} - {}", topic, payload_str);
-            }
-        };
-
-        cli.set_message_callback(cb);
-
+       
         Connection { 
             cli: cli, 
-        //    msg_cb: cb 
+            rx: rx,
         }
     }
 
