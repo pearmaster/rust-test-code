@@ -3,7 +3,7 @@ use connection::Connection;
 
 pub struct StingerClient {
     connection: Connection,
-    thing_callback: Box<dyn FnMut()>,
+    thing_callback: Box<dyn FnMut(u32)->()>,
 }
 
 impl StingerClient {
@@ -14,11 +14,11 @@ impl StingerClient {
 
         StingerClient {
             connection: con,
-            thing_callback: Box::new(|| {}),
+            thing_callback: Box::new( |_| {} ),
         }
     }
 
-    pub fn set_thing_callback(&mut self, cb: impl FnMut() + 'static) {
+    pub fn set_thing_callback(&mut self, cb: impl FnMut(u32)->() + 'static) {
         self.thing_callback = Box::new(cb);
     }
 
@@ -30,7 +30,7 @@ impl StingerClient {
         while let Some(opt_msg) = self.connection.rx.next().await {
             if let Some(msg) = opt_msg {
                 if msg.topic() == "hello/world" {
-                    (self.thing_callback)();
+                    (self.thing_callback)(1);
                 }
             }
         }

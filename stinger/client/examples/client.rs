@@ -3,8 +3,8 @@ use futures::{executor::block_on};
 
 use client::StingerClient;
 
-fn print_msg() {
-    println!("Thing");
+fn print_msg(i: u32) {
+    println!("Thing {}", i);
 }
 
 fn main() {
